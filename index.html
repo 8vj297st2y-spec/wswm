@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Water Stamp With Masa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --pink: #ff7eb8;
+      --pink-soft: #ffd3ea;
+      --blue: #7ed8ff;
+      --blue-soft: #d4f3ff;
+      --bg: #fff7fb;
+      --text-main: #333;
+      --accent: #ffb347;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, var(--blue-soft), var(--bg));
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #fff, #ffeefe);
+      display: flex;
+      flex-direction: column;
+      padding: 16px 14px 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bubble-bg {
+      position: absolute;
+      inset: -40px;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(255, 126, 184, 0.18) 0, transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(126, 216, 255, 0.25) 0, transparent 55%),
+        radial-gradient(circle at 90% 80%, rgba(255, 179, 71, 0.18) 0, transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 4px 10px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .title-main {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #ff4f9a;
+      text-shadow: 0 1px 0 #fff;
+      letter-spacing: 0.03em;
+    }
+
+    .title-sub {
+      font-size: 0.78rem;
+      color: #666;
+    }
+
+    .masa-icon {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--pink), var(--pink-soft));
+      box-shadow: 0 3px 8px rgba(255, 126, 184, 0.45);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .masa-avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: radial-gradient(circle at 30% 20%, #ffe6f4, #ff7eb8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .tabs {
+      display: flex;
+      margin: 4px 0 10px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 4px;
+      font-size: 0.85rem;
+      background: transparent;
+      color: #777;
+      font-weight: 600;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 6px;
+    }
+
+    .page {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      height: 100%;
+    }
+
+    .page.active {
+      display: flex;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 18px;
+      padding: 14px 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 0 0, rgba(126, 216, 255, 0.12) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(255, 126, 184, 0.12) 0, transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stamp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .stamp-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #444;
+    }
+
+    .stamp-sub {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .reward-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffe6f4, #fff3d9);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ff6a9e;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid rgba(255, 126, 184, 0.4);
+    }
+
+    .stamp-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .stamp-slot {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #fdfbff, #ffe9f6);
+      border: 2px dashed #ffb6d8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #ff7eb8;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border 0.12s ease;
+    }
+
+    .stamp-slot.filled {
+      border-style: solid;
+      border-color: #ff7eb8;
+      background: radial-gradient(circle at 30% 20%, #fff, #ffd3ea);
+      box-shadow: 0 3px 8px rgba(255, 126, 184, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .stamp-slot::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 0, rgba(255, 255, 255, 0.4) 0, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .stamp-slot.filled::after {
+      opacity: 1;
+    }
+
+    .stamp-count-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: #ffe6f4;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pink), var(--blue));
+      transition: width 0.2s ease;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(255, 126, 184, 0.5);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #777;
+      border: 1px solid #ddd;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .masa-talk-card {
+      margin-top: 4px;
+      background: linear-gradient(135deg, #fff7fd, #e9f7ff);
+      border-radius: 16px;
+      padding: 10px 10px 10px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid rgba(255, 126, 184, 0.35);
+    }
+
+    .masa-talk-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #ffe6f4, #ff7eb8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(255, 126, 184, 0.6);
+      flex-shrink: 0;
+    }
+
+    .masa-talk-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .masa-talk-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ff4f9a;
+    }
+
+    .masa-talk-text {
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .beauty-tip-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .beauty-tip-text {
+      font-size: 0.8rem;
+      color: #555;
+    }
+
+    .history-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .history-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #444;
+    }
+
+    .history-sub {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .history-list {
+      margin-top: 6px;
+      padding: 0;
+      list-style: none;
+      max-height: 260px;
+      overflow-y: auto;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(126, 216, 255, 0.35);
+    }
+
+    .history-empty {
+      padding: 16px 12px;
+      font-size: 0.8rem;
+      color: #999;
+      text-align: center;
+    }
+
+    .history-item {
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px dashed #eee;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .history-label {
+      font-weight: 600;
+      color: #ff6a9e;
+    }
+
+    .history-time {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .history-count-badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #f0f9ff;
+      color: #3b82f6;
+      font-weight: 600;
+    }
+
+    .history-footer-note {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: #888;
+      text-align: right;
+    }
+
+    .footer {
+      margin-top: 8px;
+      font-size: 0.7rem;
+      text-align: center;
+      color: #999;
+      padding-top: 4px;
+    }
+
+    .footer::before {
+      content: "";
+      display: block;
+      width: 40%;
+      height: 1px;
+      margin: 0 auto 4px;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.12), transparent);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      padding: 18px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 380px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px 14px 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal::before {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background-image:
+        radial-gradient(circle at 0 0, rgba(255, 126, 184, 0.18) 0, transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(126, 216, 255, 0.18) 0, transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .modal-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .modal-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #ffe6f4, #ff7eb8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(255, 126, 184, 0.7);
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #ff4f9a;
+    }
+
+    .modal-body {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #444;
+      margin-bottom: 10px;
+      white-space: pre-line;
+    }
+
+    .modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #fff7d9;
+      color: #f97316;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    .modal-close-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+    }
+
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 19;
+      display: none;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      border-radius: 3px;
+      opacity: 0.9;
+      animation: confetti-fall 1.4s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translate3d(0, -100%, 0) rotateZ(0deg);
+      }
+      100% {
+        transform: translate3d(0, 120vh, 0) rotateZ(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (min-height: 720px) {
+      .card {
+        padding: 16px 14px 18px;
+      }
+      .stamp-grid {
+        gap: 10px;
+      }
+      .history-list {
+        max-height: 320px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="bubble-bg"></div>
+    <div class="app-inner">
+      <header>
+        <div class="title-block">
+          <div class="title-main">Water Stamp With Masa</div>
+          <div class="title-sub">楽しくゴクゴク綺麗チャージ</div>
+        </div>
+        <div class="masa-icon">
+          <div class="masa-avatar-circle">マサ</div>
+          <span>公式水分補給応援隊長</span>
+        </div>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-target="page-stamp">スタンプカード</button>
+        <button class="tab-btn" data-target="page-history">スタンプ履歴</button>
+      </div>
+
+      <main>
+        <!-- スタンプカードページ -->
+        <section id="page-stamp" class="page active">
+          <div class="card">
+            <div class="card-inner">
+              <div class="stamp-header">
+                <div>
+                  <div class="stamp-title">ウォータースタンプ</div>
+                  <div class="stamp-sub">お水を飲んだら1スタンプ✨</div>
+                </div>
+                <div class="reward-pill">
+                  <span>5スタンプ＝マサの手作りスイーツ</span>
+                </div>
+              </div>
+
+              <div class="stamp-count-row">
+                <span id="stamp-count-label">スタンプ：0 / 5</span>
+                <div class="progress-bar">
+                  <div id="progress-fill" class="progress-fill"></div>
+                </div>
+              </div>
+
+              <div class="stamp-grid" id="stamp-grid">
+                <!-- JSでスタンプ5個を生成 -->
+              </div>
+
+              <div class="btn-row">
+                <button id="btn-add-stamp" class="btn btn-primary">
+                  <span>スタンプを押す💧</span>
+                </button>
+                <button id="btn-reset" class="btn btn-secondary">
+                  <span>リセット</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-inner">
+              <div class="masa-talk-card">
+                <div class="masa-talk-avatar">マサ</div>
+                <div class="masa-talk-content">
+                  <div class="masa-talk-name">マサのひとこと</div>
+                  <div id="masa-message" class="masa-talk-text">
+                    まずは一口からでいいのよ〜💖 今日も一緒にうるおいチャージしよっ✨
+                  </div>
+                </div>
+              </div>
+
+              <div class="masa-talk-card" style="margin-top:10px;">
+                <div class="masa-talk-content">
+                  <div class="beauty-tip-label">Beauty Tips</div>
+                  <div id="beauty-tip" class="beauty-tip-text">
+                    朝イチの一杯は、からだをやさしく起こしてくれるゴールデンタイムよ💧
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 履歴ページ -->
+        <section id="page-history" class="page">
+          <div class="card history-card">
+            <div class="card-inner" style="display:flex;flex-direction:column;height:100%;">
+              <div class="history-header">
+                <div>
+                  <div class="history-title">スタンプ履歴</div>
+                  <div class="history-sub">いつお水を飲んだか、ひと目でチェック💧</div>
+                </div>
+                <button id="btn-clear-history" class="btn btn-secondary" style="flex:0 0 auto;padding:6px 10px;font-size:0.75rem;">
+                  履歴クリア
+                </button>
+              </div>
+
+              <ul id="history-list" class="history-list">
+                <li class="history-empty">まだスタンプは押されていません。<br>今日の1杯目から始めてみよっ✨</li>
+              </ul>
+
+              <div class="history-footer-note">
+                ※履歴はこの端末のブラウザに保存されます。
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-inner">
+              <div class="masa-talk-card">
+                <div class="masa-talk-avatar">マサ</div>
+                <div class="masa-talk-content">
+                  <div class="masa-talk-name">マサのひとこと</div>
+                  <div class="masa-talk-text">
+                    「続けてる自分」をちゃんと見てあげてね💖 履歴はがんばりのキラキラ記録よ〜✨
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="footer">
+        © 2026 Water Stamp With Masa
+      </div>
+    </div>
+  </div>
+
+  <!-- ポップアップ（マサのありがたいお言葉） -->
+  <div id="modal-backdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-inner">
+        <div class="modal-header">
+          <div class="modal-avatar">マサ</div>
+          <div>
+            <div class="modal-title" id="modal-title">マサからのひとこと💖</div>
+            <div id="modal-badge" class="modal-badge" style="display:none;"></div>
+          </div>
+        </div>
+        <div id="modal-body" class="modal-body">
+          今日もお水えらすぎ〜〜〜💖 その一杯が、未来のキレイをつくるのよ✨
+        </div>
+        <div class="modal-actions">
+          <button id="modal-close-btn" class="modal-close-btn">OK ✨</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- お祝い用コンフェッティ -->
+  <div id="confetti" class="confetti"></div>
+
+  <script>
+    // ===== データ =====
+    const masaMessages = [
+      "今日の一杯、ナイスチョイスよ〜💖 その調子でうるおい美人まっしぐら✨✨",
+      "お水ゴクゴクできてて最高〜〜〜👏 キレイは毎日の一口からよ💧💎",
+      "ちゃんと飲めててえらすぎるのよ〜🥰 からだも心も拍手してるわ✨",
+      "その一杯、未来のあなたへのプレゼントよ🎁 今日も自分を大事にしててステキ〜💖",
+      "水分チャージできてるあなた、もう輝き増し増しよ〜🌈 キラキラ止まらないわね✨",
+      "のどが渇く前に一口、これができるあなた…意識高くて惚れちゃうわ〜💘",
+      "お水を選んだその瞬間から、キレイスイッチONよ💡 今日もスイッチ押せてる〜✨",
+      "一杯飲むたびに、からだの中で「ありがとう」って拍手起きてるわよ〜👏💖",
+      "そのペース、最高にちょうどいいわ〜💧 無理せず続けるのがいちばんの近道よ✨",
+      "今日のあなた、うるおいオーラ出てるわよ〜🌟 まだまだキレイ伸びしろだらけ〜💖"
+    ];
+
+    const masaCelebrationMessages = [
+      "5スタンプ達成〜〜〜🎉 もう拍手喝采よ〜！\nマサの手作りスイーツ、心の中でたっぷり味わってね🍰💖",
+      "コンプリートおめでと〜〜〜っ👏✨\nコツコツ飲めるあなた、最高にステキよ〜💎",
+      "やりきったその姿勢、マサ大感動よ〜😭💖\nからだもきっとニコニコしてるわ〜🌈",
+      "5回の「ちゃんと飲んだ」が積み重なって、今のキラキラなあなたになってるのよ〜✨",
+      "ブラボー！ブラボー！ブラボーよ〜〜〜🎊\nこの調子で明日も一緒にうるおってこ〜💧💖"
+    ];
+
+    const beautyTips = [
+      "朝イチの一杯は、からだをやさしく起こしてくれるゴールデンタイムよ💧",
+      "こまめに飲むと、肌のコンディションもゆらぎにくくなるって言われてるのよ✨",
+      "カフェインの多い飲み物ばかりだと、逆に水分が抜けやすくなることもあるのよ☕️",
+      "一気飲みより、少しずつこまめに飲む方がからだにやさしいのよ💖",
+      "お水を飲む前に、ひと呼吸してから飲むとリラックス効果もアップしちゃうのよ🌿",
+      "お風呂の前後に一杯ずつ飲むと、めぐりもスムーズになりやすいのよ🛁",
+      "冷たすぎるお水が苦手なら、常温も立派な選択肢よ〜💧 自分のからだに合う温度を探してね✨",
+      "食事中のお水は、飲みすぎない程度にちょこちょこがちょうどいいのよ🍽",
+      "のどが渇いたと感じたときには、すでに少し水分不足って言われることもあるのよ💦",
+      "ペットボトルやマイボトルを目に入るところに置いておくと、自然と飲む回数が増えやすいのよ👀"
+    ];
+
+    // ===== DOM取得 =====
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const pages = document.querySelectorAll(".page");
+    const stampGrid = document.getElementById("stamp-grid");
+    const stampCountLabel = document.getElementById("stamp-count-label");
+    const progressFill = document.getElementById("progress-fill");
+    const btnAddStamp = document.getElementById("btn-add-stamp");
+    const btnReset = document.getElementById("btn-reset");
+    const btnClearHistory = document.getElementById("btn-clear-history");
+    const historyList = document.getElementById("history-list");
+    const masaMessageEl = document.getElementById("masa-message");
+    const beautyTipEl = document.getElementById("beauty-tip");
+
+    const modalBackdrop = document.getElementById("modal-backdrop");
+    const modalBody = document.getElementById("modal-body");
+    const modalTitle = document.getElementById("modal-title");
+    const modalBadge = document.getElementById("modal-badge");
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+
+    const confettiContainer = document.getElementById("confetti");
+
+    // ===== 状態管理 =====
+    const STORAGE_KEY = "water_stamp_with_masa_state_v1";
+
+    let state = {
+      stamps: 0,
+      history: [] // { timestamp: number, index: number }
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (typeof parsed.stamps === "number" && Array.isArray(parsed.history)) {
+          state = parsed;
+        }
+      } catch (e) {
+        console.warn("Failed to load state", e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("Failed to save state", e);
+      }
+    }
+
+    // ===== UI更新 =====
+    function renderStamps() {
+      stampGrid.innerHTML = "";
+      for (let i = 0; i < 5; i++) {
+        const slot = document.createElement("div");
+        slot.className = "stamp-slot" + (i < state.stamps ? " filled" : "");
+        slot.textContent = i < state.stamps ? "💧" : "+";
+        stampGrid.appendChild(slot);
+      }
+      stampCountLabel.textContent = `スタンプ：${state.stamps} / 5`;
+      const percent = (state.stamps / 5) * 100;
+      progressFill.style.width = percent + "%";
+      btnAddStamp.disabled = state.stamps >= 5;
+    }
+
+    function formatDateTime(ts) {
+      const d = new Date(ts);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const h = String(d.getHours()).padStart(2, "0");
+      const min = String(d.getMinutes()).padStart(2, "0");
+      return `${y}/${m}/${day} ${h}:${min}`;
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = "";
+      if (!state.history.length) {
+        const li = document.createElement("li");
+        li.className = "history-empty";
+        li.innerHTML = "まだスタンプは押されていません。<br>今日の1杯目から始めてみよっ✨";
+        historyList.appendChild(li);
+        return;
+      }
+
+      state.history
+        .slice()
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .forEach((item, idx) => {
+          const li = document.createElement("li");
+          li.className = "history-item";
+
+          const left = document.createElement("div");
+          left.className = "history-left";
+
+          const label = document.createElement("div");
+          label.className = "history-label";
+          label.textContent = `スタンプ ${item.index} 個目`;
+
+          const time = document.createElement("div");
+          time.className = "history-time";
+          time.textContent = formatDateTime(item.timestamp);
+
+          left.appendChild(label);
+          left.appendChild(time);
+
+          const badge = document.createElement("div");
+          badge.className = "history-count-badge";
+          badge.textContent = `No.${state.history.length - idx}`;
+
+          li.appendChild(left);
+          li.appendChild(badge);
+
+          historyList.appendChild(li);
+        });
+    }
+
+    function setRandomMasaMessage(isCelebration = false) {
+      const list = isCelebration ? masaCelebrationMessages : masaMessages;
+      const msg = list[Math.floor(Math.random() * list.length)];
+      masaMessageEl.textContent = msg;
+    }
+
+    function setRandomBeautyTip() {
+      const tip = beautyTips[Math.floor(Math.random() * beautyTips.length)];
+      beautyTipEl.textContent = tip;
+    }
+
+    // ===== モーダル =====
+    function openModal(message, options = {}) {
+      modalBody.textContent = message;
+      if (options.title) {
+        modalTitle.textContent = options.title;
+      } else {
+        modalTitle.textContent = "マサからのひとこと💖";
+      }
+
+      if (options.badgeText) {
+        modalBadge.style.display = "inline-flex";
+        modalBadge.textContent = options.badgeText;
+      } else {
+        modalBadge.style.display = "none";
+      }
+
+      modalBackdrop.classList.add("active");
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove("active");
+    }
+
+    // ===== コンフェッティ =====
+    function launchConfetti() {
+      confettiContainer.innerHTML = "";
+      confettiContainer.style.display = "block";
+
+      const colors = ["#ff7eb8", "#7ed8ff", "#ffb347", "#ffffff"];
+
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement("div");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = (Math.random() * 0.4) + "s";
+        piece.style.transform = `translate3d(0, -100%, 0) rotateZ(${Math.random() * 360}deg)`;
+        confettiContainer.appendChild(piece);
+      }
+
+      setTimeout(() => {
+        confettiContainer.style.display = "none";
+        confettiContainer.innerHTML = "";
+      }, 1800);
+    }
+
+    // ===== イベント =====
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.dataset.target;
+        tabButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        pages.forEach(p => {
+          p.classList.toggle("active", p.id === targetId);
+        });
+      });
+    });
+
+    btnAddStamp.addEventListener("click", () => {
+      if (state.stamps >= 5) return;
+
+      state.stamps += 1;
+      state.history.push({
+        timestamp: Date.now(),
+        index: state.stamps
+      });
+      saveState();
+      renderStamps();
+      renderHistory();
+      setRandomBeautyTip();
+
+      if (state.stamps === 5) {
+        const msg = masaCelebrationMessages[Math.floor(Math.random() * masaCelebrationMessages.length)];
+        openModal(msg, {
+          title: "5スタンプ達成おめでとう〜〜〜🎉",
+          badgeText: "マサの手作りスイーツGET🍰"
+        });
+        launchConfetti();
+      } else {
+        const msg = masaMessages[Math.floor(Math.random() * masaMessages.length)];
+        openModal(msg, {
+          title: "マサからのありがたいお言葉💧",
+          badgeText: `スタンプ ${state.stamps} / 5`
+        });
+      }
+    });
+
+    btnReset.addEventListener("click", () => {
+      if (!state.stamps && !state.history.length) return;
+      const msg = "スタンプを全部リセットするわね💧\nまたコツコツ一緒にためてこ〜〜〜✨";
+      openModal(msg, {
+        title: "リセットしたわ",
+        badgeText: "スタンプを0に戻しました"
+      });
+      state.stamps = 0;
+      state.history = [];
+      saveState();
+      renderStamps();
+      renderHistory();
+      setRandomBeautyTip();
+      setRandomMasaMessage(false);
+    });
+
+    btnClearHistory.addEventListener("click", () => {
+      if (!state.history.length) return;
+      const msg = "履歴をきれいサッパリお片づけ〜🧼\nまた新しいうるおい記録、ここから始めましょ💧✨";
+      openModal(msg, {
+        title: "履歴をクリアしたわよ✨",
+        badgeText: "履歴をリセットしました"
+      });
+      state.history = [];
+      saveState();
+      renderHistory();
+    });
+
+    modalCloseBtn.addEventListener("click", () => {
+      closeModal();
+    });
+
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) {
+        closeModal();
+      }
+    });
+
+    // ===== 初期化 =====
+    function init() {
+      loadState();
+      renderStamps();
+      renderHistory();
+      setRandomBeautyTip();
+      setRandomMasaMessage(false);
+    }
+
+    init();
+  </script>
+</body>
+</html>
